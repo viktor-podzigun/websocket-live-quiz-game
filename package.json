@@ -8,7 +8,8 @@
   },
   "type": "module",
   "scripts": {
-    "start": "node --trace-deprecation --watch ./src/server.js",
+    "start:server": "node --trace-deprecation --watch ./src/server.js",
+    "start:client": "node --trace-deprecation --watch ./src/client.js",
     "lint": "quick-lint-js ./src/**/*.js ./test/**/*.js",
     "test": "tsc && node ./test/all.js",
     "format": "prettier **/*.js --write",
@@ -24,9 +25,12 @@
   ],
   "author": "viktorpodzigun",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "ws": "^8.20.0"
+  },
   "devDependencies": {
     "@types/node": "^22",
+    "@types/ws": "^8.18.1",
     "c8": "^7.14.0",
     "prettier": "^3.8.1",
     "quick-lint-js": "^3.2.0",

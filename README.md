@@ -1,8 +1,22 @@
 # Assignment: WebSocket — Live Quiz Game
 
+## How to run
+
+Run the app server in dev/refresh mode:
+
+```bash
+npm run start:server
+```
+
+Run the app client in dev/refresh mode:
+
+```bash
+npm run start:client
+```
+
 ## Description
 
-Your task is to implement a backend for a real-time **Live Quiz Game** using WebSocket. A host creates a quiz with questions, players join the game and answer questions in real time.
+Your task is to implement a backend for a real-time **Live Quiz Game** using WebSocket server [ws](https://github.com/websockets/ws) library. A host creates a quiz with questions, players join the game and answer questions in real time.
 
 ## Technical requirements
 
