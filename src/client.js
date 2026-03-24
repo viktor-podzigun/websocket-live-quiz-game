@@ -1,3 +1,4 @@
+import Connection from "./client/Connection.js";
 import ReadLine from "./client/ReadLine.js";
 
 // Possible states for Host:
@@ -11,21 +12,13 @@ import ReadLine from "./client/ReadLine.js";
 const main = () => {
   const rl = new ReadLine();
 
-  /** @type {WebSocket | null} */
-  let ws = null;
+  /** @type {Connection | null} */
+  let conn = null;
   let state = "Connect";
   let userName = "";
   let password = "";
   /** @type {"Host" | "Player"} */
   let gameMode = "Host";
-
-  /** @type {(serverResp: string) => void} */
-  function messageListener(serverResp) {
-    console.log(userName);
-    console.log(password);
-    console.log(gameMode);
-    console.log(serverResp);
-  }
 
   function requestAddress() {
     state = "Connect";
@@ -51,12 +44,9 @@ const main = () => {
   function handler(answer) {
     switch (state) {
       case "Connect":
-        createWebSocketClient(answer)
-          .then((socket) => {
-            ws = socket;
-            ws.addEventListener("message", (event) => {
-              messageListener(event.data);
-            });
+        Connection.create(answer)
+          .then((c) => {
+            conn = c;
             requestUserName();
           })
           .catch((error) => {
@@ -107,37 +97,3 @@ const main = () => {
 };
 
 main();
-
-/**
- * @param {string} address
- * @returns {Promise<WebSocket>}
- */
-async function createWebSocketClient(address) {
-  /** @type {(value: WebSocket) => void} */
-  let resolve;
-  /** @type {(reason?: any) => void} */
-  let reject;
-  /** @type {Promise<WebSocket>} */
-  const p = new Promise((res, rej) => {
-    resolve = res;
-    reject = rej;
-  });
-
-  const ws = new WebSocket(address);
-  ws.addEventListener("open", () => {
-    resolve(ws);
-  });
-
-  ws.addEventListener("close", (event) => {
-    console.log("WebSocket connection closed:", event.code, event.reason);
-    p.then(() => process.exit(1)).catch(() => {
-      // connection errors already handled
-    });
-  });
-
-  ws.addEventListener("error", (error) => {
-    reject(error);
-  });
-
-  return p;
-}
