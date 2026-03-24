@@ -10,7 +10,7 @@
   "scripts": {
     "start:server": "node ./src/server.js",
     "start:client": "node ./src/client.js",
-    "lint": "tsc && quick-lint-js ./src/*.js",
+    "lint": "tsc && quick-lint-js ./src/**/*.js",
     "format": "prettier **/*.js --write",
     "formatCheck": "prettier **/*.js --check"
   },

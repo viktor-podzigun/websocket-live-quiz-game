@@ -1,25 +1,15 @@
-import readline from "readline";
+import ReadLine from "./client/ReadLine.js";
 
 // Possible states for Host:
 //
-// Connect -> UserName -> Password -> Mode -> CreateGame -> StartGame
+// Connect -> UserName -> Password -> Login -> Mode -> CreateGame -> StartGame
 
 // Possible states for Player:
 //
-// Connect -> UserName -> Password -> Mode -> JoinGame -> Answer
+// Connect -> UserName -> Password -> Login -> Mode -> JoinGame -> Answer
 
 const main = () => {
-  const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-
-  /** @type {(question: string, onAnswer: (answer: string) => void) => void} */
-  function prompt(question, onAnswer) {
-    rl.question(`${question}> `, (answer) => {
-      onAnswer(answer);
-    });
-  }
+  const rl = new ReadLine();
 
   /** @type {WebSocket | null} */
   let ws = null;
@@ -39,22 +29,22 @@ const main = () => {
 
   function requestAddress() {
     state = "Connect";
-    prompt(`Enter server address, starting with "ws://"`, handler);
+    rl.prompt(`Enter server address, starting with "ws://"`, handler);
   }
 
   function requestUserName() {
     state = "UserName";
-    prompt("Enter your user name", handler);
+    rl.prompt("Enter your user name", handler);
   }
 
   function requestPassword() {
     state = "Password";
-    prompt("Enter your password", handler);
+    rl.prompt("Enter your password", handler);
   }
 
   function requestMode() {
     state = "Mode";
-    prompt("Enter game mode: Host or Player", handler);
+    rl.prompt("Enter game mode: Host or Player", handler);
   }
 
   /** @type {(answer: string) => void} */
@@ -103,7 +93,7 @@ const main = () => {
         }
         gameMode = answer;
         state = "Exit"; //TODO
-        prompt("Press enter to exit", handler);
+        rl.prompt("Press enter to exit", handler);
         break;
 
       default:
