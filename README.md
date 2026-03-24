@@ -2,13 +2,13 @@
 
 ## How to run
 
-Run the app server in dev/refresh mode:
+Run the app server:
 
 ```bash
 npm run start:server
 ```
 
-Run the app client in dev/refresh mode:
+Run the app client (Host or Player):
 
 ```bash
 npm run start:client
