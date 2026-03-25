@@ -1,3 +1,7 @@
+/**
+ * @import { ApiReq, ApiResp } from "../api.js"
+ */
+
 class Connection {
   /**
    * @param {WebSocket} ws
@@ -5,6 +9,9 @@ class Connection {
   constructor(ws) {
     /** @private @readonly @type {WebSocket} */
     this.ws = ws;
+
+    /** @private @type {PromiseWithResolvers<string>} */
+    this.respP = Promise.withResolvers();
 
     ws.addEventListener("message", (event) => {
       this.serverHandler(event.data);
@@ -16,7 +23,19 @@ class Connection {
    * @param {string} serverResp
    */
   serverHandler(serverResp) {
-    console.log(serverResp);
+    this.respP.resolve(serverResp);
+  }
+
+  /**
+   * @template {ApiReq} D
+   * @template {ApiResp} R
+   * @param {D} msg
+   * @returns {Promise<R>}
+   */
+  async send(msg) {
+    this.respP = Promise.withResolvers();
+    this.ws.send(JSON.stringify(msg));
+    return this.respP.promise.then((resp) => JSON.parse(resp));
   }
 
   /**

@@ -1,5 +1,9 @@
 # Assignment: WebSocket — Live Quiz Game
 
+## How to configure
+
+You can edit list of users in `./src/server/users.json`
+
 ## How to run
 
 Run the app server:

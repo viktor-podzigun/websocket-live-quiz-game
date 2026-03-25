@@ -1,3 +1,6 @@
+/**
+ * @import { LoginReq, LoginResp } from "./api.js"
+ */
 import Connection from "./client/Connection.js";
 import ReadLine from "./client/ReadLine.js";
 
@@ -12,8 +15,8 @@ import ReadLine from "./client/ReadLine.js";
 const main = () => {
   const rl = new ReadLine();
 
-  /** @type {Connection | null} */
-  let conn = null;
+  /** @type {PromiseWithResolvers<Connection>} */
+  let connP = Promise.withResolvers();
   let state = "Connect";
   let userName = "";
   let password = "";
@@ -45,8 +48,8 @@ const main = () => {
     switch (state) {
       case "Connect":
         Connection.create(answer)
-          .then((c) => {
-            conn = c;
+          .then((conn) => {
+            connP.resolve(conn);
             requestUserName();
           })
           .catch((error) => {
@@ -72,7 +75,18 @@ const main = () => {
           break;
         }
         password = answer;
-        requestMode();
+        doLogin()
+          .then((resp) => {
+            if (resp.data.error) {
+              throw resp.data.errorText;
+            }
+            console.log("Login successful!");
+            requestMode();
+          })
+          .catch((error) => {
+            console.log(`Login error:`, error.stack ? `${error}` : error);
+            requestUserName();
+          });
         break;
 
       case "Mode":
@@ -82,6 +96,7 @@ const main = () => {
           break;
         }
         gameMode = answer;
+        console.log(gameMode);
         state = "Exit"; //TODO
         rl.prompt("Press enter to exit", handler);
         break;
@@ -91,6 +106,24 @@ const main = () => {
         process.exit(0);
         break;
     }
+  }
+
+  /** @type {() => Promise<LoginResp>} */
+  async function doLogin() {
+    const conn = await connP.promise;
+
+    /** @type {LoginReq} */
+    const msg = {
+      type: "reg",
+      data: {
+        name: userName,
+        password,
+      },
+      id: 0,
+    };
+
+    console.log("Logging you in...");
+    return await conn.send(msg);
   }
 
   requestAddress();
