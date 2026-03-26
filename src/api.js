@@ -21,6 +21,17 @@
  * }} LoginReq
  */
 
+/** @type {(s: any) => boolean} */
+export function isLoginData(data) {
+  return (
+    !!data &&
+    data.name &&
+    typeof data.name === "string" &&
+    data.password &&
+    typeof data.password === "string"
+  );
+}
+
 /**
  * @typedef {{
  *  readonly type: "reg";

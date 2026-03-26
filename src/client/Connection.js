@@ -35,7 +35,14 @@ class Connection {
   async send(msg) {
     this.respP = Promise.withResolvers();
     this.ws.send(JSON.stringify(msg));
-    return this.respP.promise.then((resp) => JSON.parse(resp));
+
+    return this.respP.promise.then((resp) => {
+      if (!resp.trim().startsWith("{")) {
+        throw Error(resp);
+      }
+
+      return JSON.parse(resp);
+    });
   }
 
   /**

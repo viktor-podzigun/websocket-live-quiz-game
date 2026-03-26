@@ -4,6 +4,7 @@
  */
 import { WebSocketServer } from "ws";
 import { isValidCredentials } from "./server/users.js";
+import { isLoginData } from "./api.js";
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -33,19 +34,28 @@ function sendResp(ws, resp) {
 
 /** @type {(ws: WebSocket, req: ApiReq) => void} */
 function handler(ws, req) {
-  switch (req.type) {
-    case "reg":
-      sendResp(ws, handleLogin(req));
-      break;
+  try {
+    switch (req.type) {
+      case "reg":
+        handleLogin(ws, req);
+        break;
 
-    default:
-      console.log(`Unsupported request: ${req.type}`);
-      ws.send("Validation error: Unsupported request type");
+      default:
+        const error = `Unsupported request: type = ${req.type}`;
+        console.log(error);
+        throw error;
+    }
+  } catch (error) {
+    ws.send(`Validation error: ${error}`);
   }
 }
 
-/** @type {(req: LoginReq) => LoginResp} */
-function handleLogin(req) {
+/** @type {(ws: WebSocket, req: LoginReq) => void} */
+function handleLogin(ws, req) {
+  if (!isLoginData(req.data)) {
+    ws.send("Validation error: Invalid Login message");
+    return;
+  }
   if (!isValidCredentials(req.data.name, req.data.password)) {
     /** @type {LoginResp} */
     const msg = {
@@ -58,7 +68,8 @@ function handleLogin(req) {
       },
       id: 0,
     };
-    return msg;
+    sendResp(ws, msg);
+    return;
   }
 
   /** @type {LoginResp} */
@@ -72,6 +83,5 @@ function handleLogin(req) {
     },
     id: 0,
   };
-
-  return msg;
+  sendResp(ws, msg);
 }
