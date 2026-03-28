@@ -1,10 +1,18 @@
 /**
  * @import { WebSocket } from "ws"
- * @import { ApiReq, ApiResp, LoginReq, LoginResp } from "./api.js"
+ * @import {
+ *  ApiReq,
+ *  ApiResp,
+ *  LoginReq,
+ *  LoginResp,
+ *  CreateGameReq,
+ *  CreateGameResp,
+ * } from "./api.js"
  */
 import { WebSocketServer } from "ws";
+import { createGame } from "./server/game.js";
 import { isValidCredentials } from "./server/users.js";
-import { isLoginData } from "./api.js";
+import { isLoginData, isCreateGameData } from "./api.js";
 
 const wss = new WebSocketServer({ port: 8080 });
 
@@ -40,20 +48,19 @@ function handler(ws, req) {
         handleLogin(ws, req);
         break;
 
-      default:
-        const error = `Unsupported request: type = ${req.type}`;
-        console.log(error);
-        throw error;
+      case "create_game":
+        handleCreateGame(ws, req);
+        break;
     }
   } catch (error) {
-    ws.send(`Validation error: ${error}`);
+    ws.send(`Internal error: ${error}`);
   }
 }
 
 /** @type {(ws: WebSocket, req: LoginReq) => void} */
 function handleLogin(ws, req) {
   if (!isLoginData(req.data)) {
-    ws.send("Validation error: Invalid Login message");
+    ws.send("Validation error: Invalid reg Json message");
     return;
   }
   if (!isValidCredentials(req.data.name, req.data.password)) {
@@ -80,6 +87,28 @@ function handleLogin(ws, req) {
       index: 0,
       error: false,
       errorText: "",
+    },
+    id: 0,
+  };
+  sendResp(ws, msg);
+}
+
+/** @type {(ws: WebSocket, req: CreateGameReq) => void} */
+function handleCreateGame(ws, req) {
+  if (!isCreateGameData(req.data)) {
+    ws.send("Validation error: Invalid create_game Json message");
+    return;
+  }
+
+  const [gameId, code] = createGame(req.data.questions);
+  console.log(`Game created, room code: ${code}`);
+
+  /** @type {CreateGameResp} */
+  const msg = {
+    type: "game_created",
+    data: {
+      gameId,
+      code,
     },
     id: 0,
   };

@@ -38,7 +38,7 @@ class Connection {
 
     return this.respP.promise.then((resp) => {
       if (!resp.trim().startsWith("{")) {
-        throw Error(resp);
+        throw resp;
       }
 
       return JSON.parse(resp);

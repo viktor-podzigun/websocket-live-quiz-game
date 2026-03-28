@@ -1,8 +1,17 @@
+[![CI](https://github.com/viktor-podzigun/websocket-live-quiz-game/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/viktor-podzigun/websocket-live-quiz-game/actions/workflows/ci.yml?query=workflow%3Aci+branch%3Amain)
+[![Coverage Status](https://coveralls.io/repos/github/viktor-podzigun/websocket-live-quiz-game/badge.svg?branch=main)](https://coveralls.io/github/viktor-podzigun/websocket-live-quiz-game?branch=main)
+
 # Assignment: WebSocket — Live Quiz Game
 
 ## How to configure
 
-You can edit list of users in `./src/server/users.json`
+You can edit list of users (used in Login) in `./src/server/users.json`
+
+Example list of questions (for CreateGame):
+
+```
+[ { "text": "1 + 2 = ?", "options": ["3", "4", "5", "12"], "correctIndex": 0, "timeLimitSec": 5 }, { "text": "hello + world = ?", "options": ["hi", "hello", "world", "hello world"], "correctIndex": 3, "timeLimitSec": 5 }, { "text": "Berlin is capital of?", "options": ["USA", "Germany", "Paris", "London"], "correctIndex": 1, "timeLimitSec": 5 } ]
+```
 
 ## How to run
 

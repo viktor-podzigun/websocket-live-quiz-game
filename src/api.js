@@ -21,13 +21,13 @@
  * }} LoginReq
  */
 
-/** @type {(s: any) => boolean} */
+/** @type {(data: any) => boolean} */
 export function isLoginData(data) {
   return (
     !!data &&
-    data.name &&
+    data.name !== undefined &&
     typeof data.name === "string" &&
-    data.password &&
+    data.password !== undefined &&
     typeof data.password === "string"
   );
 }
@@ -54,6 +54,33 @@ export function isLoginData(data) {
  *  readonly id: 0;
  * }} CreateGameReq
  */
+
+/** @type {(data: any) => boolean} */
+export function isCreateGameData(data) {
+  return (
+    !!data &&
+    data.questions !== undefined &&
+    Array.isArray(data.questions) &&
+    data.questions.length > 0 &&
+    data.questions.every(isQuestionData)
+  );
+}
+
+/** @type {(data: any) => boolean} */
+export function isQuestionData(data) {
+  return (
+    !!data &&
+    data.text !== undefined &&
+    typeof data.text === "string" &&
+    data.options &&
+    Array.isArray(data.options) &&
+    data.options.length === 4 &&
+    data.correctIndex !== undefined &&
+    typeof data.correctIndex === "number" &&
+    data.timeLimitSec !== undefined &&
+    typeof data.timeLimitSec === "number"
+  );
+}
 
 /**
  * @typedef {{

@@ -10,7 +10,8 @@
   "scripts": {
     "start:server": "node ./src/server.js",
     "start:client": "node ./src/client.js",
-    "lint": "tsc && quick-lint-js ./src/**/*.js",
+    "lint": "tsc && quick-lint-js ./src/**/*.js ./test/*.js",
+    "test": "node ./test/all.js",
     "format": "prettier **/*.js --write",
     "formatCheck": "prettier **/*.js --check"
   },
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/node": "^22",
     "@types/ws": "^8.18.1",
+    "c8": "^7.14.0",
     "prettier": "^3.8.1",
     "quick-lint-js": "^3.2.0",
     "typescript": "^5.9.3"
