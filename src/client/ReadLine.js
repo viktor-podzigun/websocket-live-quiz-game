@@ -1,12 +1,18 @@
-import readline from "readline";
+/**
+ * @import readline from "readline";
+ */
 
 class ReadLine {
-  constructor() {
-    /** @readonly @type {readline.Interface} */
-    this.rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
+  /**
+   * @param {readline.Interface} rl
+   */
+  constructor(rl) {
+    /** @private @readonly @type {readline.Interface} */
+    this.rl = rl;
+  }
+
+  close() {
+    this.rl.close();
   }
 
   /**
@@ -17,6 +23,13 @@ class ReadLine {
     this.rl.question(`${question}> `, (answer) => {
       onAnswer(answer);
     });
+  }
+
+  /**
+   * @param {string} log
+   */
+  output(log) {
+    console.log(log);
   }
 }
 

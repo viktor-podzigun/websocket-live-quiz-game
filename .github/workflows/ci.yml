@@ -44,7 +44,7 @@ jobs:
           npm i
           npm run lint
           npm run formatCheck
-          NODE_V8_COVERAGE=coverage0 npx c8 -r lcovonly --all --exclude "src/client**" --exclude "src/serverMain.js" --exclude "test/**" node --experimental-test-coverage ./test/all.js
+          NODE_V8_COVERAGE=coverage0 npx c8 -r lcovonly --all --exclude "src/clientMain.js" --exclude "src/serverMain.js" --exclude "test/**" node --experimental-test-coverage ./test/all.js
 
       - name: Report coverage to Coveralls
         uses: coverallsapp/github-action@v2

@@ -84,11 +84,15 @@ export function isQuestionData(data) {
 
 /**
  * @typedef {{
+ *  readonly gameId: string;
+ *  readonly code: string;
+ * }} GameCreated
+ */
+
+/**
+ * @typedef {{
  *  readonly type: "game_created";
- *  readonly data: {
- *    readonly gameId: string;
- *    readonly code: string;
- *  };
+ *  readonly data: GameCreated;
  *  readonly id: 0;
  * }} CreateGameResp
  */

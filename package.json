@@ -9,7 +9,7 @@
   "type": "module",
   "scripts": {
     "start:server": "node ./src/serverMain.js",
-    "start:client": "node ./src/client.js",
+    "start:client": "node ./src/clientMain.js",
     "lint": "tsc && quick-lint-js ./src/**/*.js ./test/*.js",
     "test": "node ./test/all.js",
     "format": "prettier **/*.js --write",
