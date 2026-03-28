@@ -1,12 +1,14 @@
 /**
  * @typedef {LoginReq
  *  | CreateGameReq
+ *  | JoinGameReq
  * } ApiReq
  */
 
 /**
  * @typedef {LoginResp
  *  | CreateGameResp
+ *  | JoinGameResp
  * } ApiResp
  */
 
@@ -95,4 +97,29 @@ export function isQuestionData(data) {
  *  readonly data: GameCreated;
  *  readonly id: 0;
  * }} CreateGameResp
+ */
+
+/**
+ * @typedef {{
+ *  readonly type: "join_game";
+ *  readonly data: {
+ *    readonly code: string;
+ *  };
+ *  readonly id: 0;
+ * }} JoinGameReq
+ */
+
+/** @type {(data: any) => boolean} */
+export function isJoinGameData(data) {
+  return !!data && typeof data.code === "string";
+}
+
+/**
+ * @typedef {{
+ *  readonly type: "game_joined";
+ *  readonly data: {
+ *    readonly gameId: string;
+ *  };
+ *  readonly id: 0;
+ * }} JoinGameResp
  */

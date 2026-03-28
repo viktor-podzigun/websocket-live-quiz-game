@@ -7,9 +7,11 @@
  *  LoginResp,
  *  CreateGameReq,
  *  CreateGameResp,
+ *  JoinGameReq,
+ *  JoinGameResp,
  * } from "../api.js"
  */
-import { isLoginData, isCreateGameData } from "../api.js";
+import { isLoginData, isCreateGameData, isJoinGameData } from "../api.js";
 import Game from "./Game.js";
 import { isValidCredentials } from "./users.js";
 
@@ -25,8 +27,8 @@ class WSClient {
       this.handler(JSON.parse(data.toString()));
     });
 
-    /** @private @type {boolean} */
-    this.isLoggedin = false;
+    /** @private @type {string | undefined} */
+    this.userName = undefined;
   }
 
   /**
@@ -53,6 +55,14 @@ class WSClient {
         case "create_game":
           this.handleCreateGame(req);
           break;
+
+        case "join_game":
+          this.handleJoinGame(req);
+          break;
+
+        default:
+          //@ts-ignore
+          throw `Unknown request: ${req.type}`;
       }
     } catch (error) {
       this.ws.send(`Internal error: ${error}`);
@@ -96,8 +106,8 @@ class WSClient {
       },
       id: 0,
     };
+    this.userName = req.data.name;
     this.sendResp(msg);
-    this.isLoggedin = true;
   }
 
   /**
@@ -106,12 +116,12 @@ class WSClient {
    * @returns {void}
    */
   handleCreateGame(req) {
-    if (!this.isLoggedin) {
-      this.ws.send("User is not loggedin");
-      return;
-    }
     if (!isCreateGameData(req.data)) {
       this.ws.send("Validation error: Invalid create_game Json message");
+      return;
+    }
+    if (this.userName === undefined) {
+      this.ws.send("User is not loggedin");
       return;
     }
 
@@ -124,6 +134,44 @@ class WSClient {
       data: {
         gameId,
         code,
+      },
+      id: 0,
+    };
+    this.sendResp(msg);
+  }
+
+  /**
+   * @private
+   * @param {JoinGameReq} req
+   * @returns {void}
+   */
+  handleJoinGame(req) {
+    if (!isJoinGameData(req.data)) {
+      this.ws.send("Validation error: Invalid join_game Json message");
+      return;
+    }
+    if (this.userName === undefined) {
+      this.ws.send("User is not loggedin");
+      return;
+    }
+
+    const code = req.data.code;
+    const game = Game.findByCode(code);
+    if (!game) {
+      this.ws.send(`Game with room code ${code} is not found`);
+      return;
+    }
+
+    game.joinPlayer(this.ws, this.userName);
+    console.log(
+      `Game joined, gameId: ${game.gameId}, user name: ${this.userName}`,
+    );
+
+    /** @type {JoinGameResp} */
+    const msg = {
+      type: "game_joined",
+      data: {
+        gameId: game.gameId,
       },
       id: 0,
     };
