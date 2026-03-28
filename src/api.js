@@ -24,11 +24,7 @@
 /** @type {(data: any) => boolean} */
 export function isLoginData(data) {
   return (
-    !!data &&
-    data.name !== undefined &&
-    typeof data.name === "string" &&
-    data.password !== undefined &&
-    typeof data.password === "string"
+    !!data && typeof data.name === "string" && typeof data.password === "string"
   );
 }
 
@@ -59,7 +55,6 @@ export function isLoginData(data) {
 export function isCreateGameData(data) {
   return (
     !!data &&
-    data.questions !== undefined &&
     Array.isArray(data.questions) &&
     data.questions.length > 0 &&
     data.questions.every(isQuestionData)
@@ -70,14 +65,10 @@ export function isCreateGameData(data) {
 export function isQuestionData(data) {
   return (
     !!data &&
-    data.text !== undefined &&
     typeof data.text === "string" &&
-    data.options &&
     Array.isArray(data.options) &&
     data.options.length === 4 &&
-    data.correctIndex !== undefined &&
     typeof data.correctIndex === "number" &&
-    data.timeLimitSec !== undefined &&
     typeof data.timeLimitSec === "number"
   );
 }

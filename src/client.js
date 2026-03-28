@@ -63,6 +63,14 @@ function handler(answer) {
       Connection.create(answer)
         .then((conn) => {
           connP.resolve(conn);
+          conn.ws.addEventListener("close", (event) => {
+            console.log(
+              "WebSocket connection closed:",
+              event.code,
+              event.reason,
+            );
+            process.exit(1);
+          });
           requestUserName();
         })
         .catch((error) => {

@@ -1,3 +1,6 @@
+/**
+ * @import { Question } from "../src/api.js"
+ */
 import { describe, it } from "node:test";
 import { deepEqual } from "node:assert/strict";
 import { isCreateGameData, isQuestionData } from "../src/api.js";
@@ -5,7 +8,7 @@ import { isCreateGameData, isQuestionData } from "../src/api.js";
 describe("api.test.js", () => {
   it("should validate create game request data", () => {
     //given
-    /** @type {any[]} */
+    /** @type {Question[]} */
     const questions = [
       {
         text: "1 + 2 = ?",
@@ -16,7 +19,16 @@ describe("api.test.js", () => {
     ];
 
     //when & then
+    deepEqual(isCreateGameData({}), false);
     deepEqual(isCreateGameData({ questions: [] }), false);
+    deepEqual(isQuestionData({}), false);
+    deepEqual(isQuestionData({ ...questions[0], text: undefined }), false);
+    deepEqual(isQuestionData({ ...questions[0], options: undefined }), false);
+    deepEqual(isQuestionData({ ...questions[0], options: "" }), false);
+    deepEqual(
+      isQuestionData({ ...questions[0], correctIndex: undefined }),
+      false,
+    );
     deepEqual(isQuestionData(questions[0]), true);
     deepEqual(isCreateGameData({ questions }), true);
     deepEqual(

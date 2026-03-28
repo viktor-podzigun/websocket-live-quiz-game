@@ -7,7 +7,7 @@ class Connection {
    * @param {WebSocket} ws
    */
   constructor(ws) {
-    /** @private @readonly @type {WebSocket} */
+    /** @readonly @type {WebSocket} */
     this.ws = ws;
 
     /** @private @type {PromiseWithResolvers<string>} */
@@ -50,33 +50,19 @@ class Connection {
    * @returns {Promise<Connection>}
    */
   static async create(address) {
-    /** @type {(value: Connection) => void} */
-    let resolve;
-    /** @type {(reason?: any) => void} */
-    let reject;
-    /** @type {Promise<Connection>} */
-    const p = new Promise((res, rej) => {
-      resolve = res;
-      reject = rej;
-    });
+    /** @type {PromiseWithResolvers<Connection>} */
+    const p = Promise.withResolvers();
 
     const ws = new WebSocket(address);
     ws.addEventListener("open", () => {
-      resolve(new Connection(ws));
-    });
-
-    ws.addEventListener("close", (event) => {
-      console.log("WebSocket connection closed:", event.code, event.reason);
-      p.then(() => process.exit(1)).catch(() => {
-        // connection errors already handled
-      });
+      p.resolve(new Connection(ws));
     });
 
     ws.addEventListener("error", (error) => {
-      reject(error);
+      p.reject(error);
     });
 
-    return p;
+    return p.promise;
   }
 }
 
