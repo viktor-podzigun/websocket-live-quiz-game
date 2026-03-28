@@ -10,7 +10,7 @@
  * } from "../api.js"
  */
 import { isLoginData, isCreateGameData } from "../api.js";
-import { createGame } from "./game.js";
+import Game from "./Game.js";
 import { isValidCredentials } from "./users.js";
 
 class WSClient {
@@ -115,8 +115,8 @@ class WSClient {
       return;
     }
 
-    const [gameId, code] = createGame(req.data.questions);
-    console.log(`Game created, room code: ${code}`);
+    const { gameId, code } = Game.create(req.data.questions);
+    console.log(`Game created, gameId: ${gameId}, room code: ${code}`);
 
     /** @type {CreateGameResp} */
     const msg = {
