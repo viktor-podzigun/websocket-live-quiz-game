@@ -1,0 +1,40 @@
+{
+  "name": "websocket-live-quiz-game",
+  "version": "1.0.0",
+  "description": "Assignment: WebSocket — Live Quiz Game",
+  "engines": {
+    "node": ">=24.10.0",
+    "npm": ">=10.9.2"
+  },
+  "type": "module",
+  "scripts": {
+    "start:server": "node ./src/serverMain.js",
+    "start:client": "node ./src/clientMain.js",
+    "lint": "tsc && quick-lint-js ./src/**/*.js ./test/*.js",
+    "test": "node ./test/all.js",
+    "format": "prettier **/*.js --write",
+    "formatCheck": "prettier **/*.js --check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viktor-podzigun/websocket-live-quiz-game.git"
+  },
+  "keywords": [
+    "websocket",
+    "assignments"
+  ],
+  "author": "viktorpodzigun",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/ws": "^8.18.1",
+    "c8": "^7.14.0",
+    "mock-fn": "^1.1.0",
+    "prettier": "^3.8.1",
+    "quick-lint-js": "^3.2.0",
+    "typescript": "^5.9.3"
+  }
+}

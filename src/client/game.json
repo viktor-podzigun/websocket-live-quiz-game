@@ -1,0 +1,26 @@
+{
+  "type": "create_game",
+  "data": {
+    "questions": [
+      {
+        "text": "1 + 2 = ?",
+        "options": ["3", "4", "5", "12"],
+        "correctIndex": 0,
+        "timeLimitSec": 5
+      },
+      {
+        "text": "hello + world = ?",
+        "options": ["hi", "hello", "world", "hello world"],
+        "correctIndex": 3,
+        "timeLimitSec": 5
+      },
+      {
+        "text": "Berlin is capital of?",
+        "options": ["USA", "Germany", "Paris", "London"],
+        "correctIndex": 1,
+        "timeLimitSec": 5
+      }
+    ]
+  },
+  "id": 0
+}
