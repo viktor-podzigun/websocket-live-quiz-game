@@ -3,25 +3,18 @@
  * @import {
  *  LoginReq,
  *  LoginResp,
- *  CreateGameReq,
- *  CreateGameResp,
- *  JoinGameReq,
- *  JoinGameResp
  * } from "../api.js"
  */
 import Connection from "./Connection.js";
+import Host from "./Host.js";
+import Player from "./Player.js";
 
 // Possible states:
 //
 // Connect -> UserName -> Password \
 //              /\                  \
 //               \                  \/
-//                \______________ Login -> Mode
-//                                           \
-//                                            \
-//                                          (Host) -> CreateGame -> StartGame
-//                                             |
-//                                         (Player) -> JoinGame -> Answer
+//                \______________ Login -> Mode (Host or Player)
 
 /**
  * @param {ReadLine} rl
@@ -51,16 +44,6 @@ export function start(rl) {
   function requestMode() {
     state = "Mode";
     rl.prompt("Enter game mode: Host or Player", handler);
-  }
-
-  function requestGameQuestions() {
-    state = "CreateGame";
-    rl.prompt("Enter game questions (json array)", handler);
-  }
-
-  function requestGameRoomCode() {
-    state = "JoinGame";
-    rl.prompt("Enter game room code (4 digit)", handler);
   }
 
   /** @type {(answer: string) => void} */
@@ -116,51 +99,30 @@ export function start(rl) {
         break;
 
       case "Mode":
-        handleMode(answer);
-        break;
-
-      case "CreateGame":
-        doCreateGame(answer)
-          .then((resp) => {
-            rl.output(
-              `Game created, gameId: ${resp.data.gameId}, room code: ${resp.data.code}`,
-            );
-            rl.close(); //TODO
-          })
-          .catch((error) => {
-            rl.output(`CreateGame error: ${error.stack ? `${error}` : error}`);
-            requestGameQuestions();
-          });
-        break;
-
-      case "JoinGame":
-        doJoinGame(answer)
-          .then((resp) => {
-            rl.output(`Game joined, gameId: ${resp.data.gameId}`);
-            rl.close(); //TODO
-          })
-          .catch((error) => {
-            rl.output(`JoinGame error: ${error.stack ? `${error}` : error}`);
-            requestGameRoomCode();
-          });
+        handleMode(answer).catch((error) => {
+          rl.output(`Mode error: ${error.stack ? `${error}` : error}`);
+          requestMode();
+        });
         break;
 
       default:
-        rl.output(`Unsupported state: ${state}`);
+        rl.output(`Unsupported Client state: ${state}`);
         rl.close();
         break;
     }
   }
 
-  /** @type {(answer: string) => void} */
-  function handleMode(answer) {
+  /** @type {(answer: string) => Promise<void>} */
+  async function handleMode(answer) {
+    const conn = await connP.promise;
+
     switch (answer) {
       case "Host":
-        requestGameQuestions();
+        new Host(rl, conn).requestGameQuestions();
         break;
 
       case "Player":
-        requestGameRoomCode();
+        new Player(rl, conn).requestGameRoomCode();
         break;
 
       default:
@@ -185,40 +147,6 @@ export function start(rl) {
     };
 
     rl.output("Logging you in...");
-    return await conn.send(msg);
-  }
-
-  /** @type {(questionsJson: string) => Promise<CreateGameResp>} */
-  async function doCreateGame(questionsJson) {
-    const conn = await connP.promise;
-
-    /** @type {CreateGameReq} */
-    const msg = {
-      type: "create_game",
-      data: {
-        questions: JSON.parse(questionsJson),
-      },
-      id: 0,
-    };
-
-    rl.output("Creating game...");
-    return await conn.send(msg);
-  }
-
-  /** @type {(code: string) => Promise<JoinGameResp>} */
-  async function doJoinGame(code) {
-    const conn = await connP.promise;
-
-    /** @type {JoinGameReq} */
-    const msg = {
-      type: "join_game",
-      data: {
-        code,
-      },
-      id: 0,
-    };
-
-    rl.output("Joining game...");
     return await conn.send(msg);
   }
 
