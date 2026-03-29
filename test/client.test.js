@@ -3,6 +3,7 @@
  * @import { GameCreated } from "../src/api.js"
  */
 import { after, before, describe, it } from "node:test";
+import { deepEqual } from "assert/strict";
 import ReadLine from "../src/client/ReadLine.js";
 import { create } from "../src/server.js";
 import { start as startClient } from "../src/client.js";
@@ -24,9 +25,13 @@ class TestReadLine extends ReadLine {
 }
 
 const gameCreatedRegex = /Game created, gameId: (.+?), room code: (.+)/;
+const gameJoinedRegex = /Game joined, gameId: (.+)/;
 
 /** @type {PromiseWithResolvers<GameCreated>} */
 const gameCreatedP = Promise.withResolvers();
+
+/** @type {PromiseWithResolvers<string>} */
+const gameJoinedP = Promise.withResolvers();
 
 describe("client.test.js", async () => {
   const wss = create(port);
@@ -92,7 +97,60 @@ describe("client.test.js", async () => {
       ),
     );
 
+    //then
+    await gameCreatedP.promise;
+  });
+
+  it("should handle join_game command", async () => {
+    //given
     const { gameId, code } = await gameCreatedP.promise;
-    console.log(`${gameId}, ${code}`);
+
+    //when & then
+    startClient(
+      new TestReadLine(
+        () => console.log("TestReadLine is closed!"),
+        (q, handler) => {
+          switch (q) {
+            case `Enter server address, starting with "ws://"`:
+              handler(`ws://localhost:${port}`);
+              break;
+
+            case "Enter your user name":
+              handler("user2");
+              break;
+
+            case "Enter your password":
+              handler("pass2");
+              break;
+
+            case "Enter game mode: Host or Player":
+              handler("Player");
+              break;
+
+            case "Enter game room code (4 digit)":
+              handler(code);
+              break;
+
+            default:
+              gameJoinedP.reject(`Unknown prompt: ${q}`);
+              break;
+          }
+        },
+        (log) => {
+          if (log.startsWith(`Game joined, gameId: `)) {
+            const groups = gameJoinedRegex.exec(log);
+            if (groups) {
+              gameJoinedP.resolve(groups[1]);
+            } else {
+              gameJoinedP.reject("gameJoinedRegex didn't match!");
+            }
+          }
+        },
+      ),
+    );
+
+    //then
+    const joinGameId = await gameJoinedP.promise;
+    deepEqual(joinGameId, gameId);
   });
 });

@@ -4,7 +4,9 @@
  *  LoginReq,
  *  LoginResp,
  *  CreateGameReq,
- *  CreateGameResp
+ *  CreateGameResp,
+ *  JoinGameReq,
+ *  JoinGameResp
  * } from "./api.js"
  */
 import Connection from "./client/Connection.js";
@@ -30,8 +32,6 @@ export function start(rl) {
   let state = "Connect";
   let userName = "";
   let password = "";
-  /** @type {"Host" | "Player"} */
-  let gameMode = "Host";
 
   function requestAddress() {
     state = "Connect";
@@ -56,6 +56,11 @@ export function start(rl) {
   function requestGameQuestions() {
     state = "CreateGame";
     rl.prompt("Enter game questions (json array)", handler);
+  }
+
+  function requestGameRoomCode() {
+    state = "JoinGame";
+    rl.prompt("Enter game room code (4 digit)", handler);
   }
 
   /** @type {(answer: string) => void} */
@@ -128,6 +133,18 @@ export function start(rl) {
           });
         break;
 
+      case "JoinGame":
+        doJoinGame(answer)
+          .then((resp) => {
+            rl.output(`Game joined, gameId: ${resp.data.gameId}`);
+            rl.close(); //TODO
+          })
+          .catch((error) => {
+            rl.output(`JoinGame error: ${error.stack ? `${error}` : error}`);
+            requestGameRoomCode();
+          });
+        break;
+
       default:
         rl.output(`Unsupported state: ${state}`);
         rl.close();
@@ -139,15 +156,11 @@ export function start(rl) {
   function handleMode(answer) {
     switch (answer) {
       case "Host":
-        gameMode = answer;
         requestGameQuestions();
         break;
 
       case "Player":
-        gameMode = answer;
-        rl.output(`gameMode: ${gameMode}`);
-        state = "Exit"; //TODO
-        rl.prompt("Press enter to exit", handler);
+        requestGameRoomCode();
         break;
 
       default:
@@ -189,6 +202,23 @@ export function start(rl) {
     };
 
     rl.output("Creating game...");
+    return await conn.send(msg);
+  }
+
+  /** @type {(code: string) => Promise<JoinGameResp>} */
+  async function doJoinGame(code) {
+    const conn = await connP.promise;
+
+    /** @type {JoinGameReq} */
+    const msg = {
+      type: "join_game",
+      data: {
+        code,
+      },
+      id: 0,
+    };
+
+    rl.output("Joining game...");
     return await conn.send(msg);
   }
 
