@@ -27,6 +27,11 @@ Run the app client (Host or Player):
 npm run start:client
 ```
 
+Notes:
+
+- Implementation is not finished
+- Question Answer and below commands should be implemented
+
 ## Description
 
 Your task is to implement a backend for a real-time **Live Quiz Game** using WebSocket server [ws](https://github.com/websockets/ws) library. A host creates a quiz with questions, players join the game and answer questions in real time.

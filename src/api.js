@@ -3,6 +3,7 @@
  *  | CreateGameReq
  *  | JoinGameReq
  *  | StartGameReq
+ *  | QuestionAnswerReq
  * } ApiReq
  */
 
@@ -11,6 +12,7 @@
  *  | CreateGameResp
  *  | JoinGameResp
  *  | StartGameResp
+ *  | QuestionAnswerResp
  * } ApiResp
  */
 
@@ -149,6 +151,38 @@ export function isStartGameData(data) {
  *  };
  *  readonly id: 0;
  * }} StartGameResp
+ */
+
+/**
+ * @typedef {{
+ *  readonly type: "answer";
+ *  readonly data: {
+ *    readonly gameId: string;
+ *    readonly questionIndex: number;
+ *    readonly answerIndex: number;
+ *  };
+ *  readonly id: 0;
+ * }} QuestionAnswerReq
+ */
+
+/** @type {(data: any) => boolean} */
+export function isQuestionAnswerData(data) {
+  return (
+    !!data &&
+    typeof data.gameId === "string" &&
+    typeof data.questionIndex === "number" &&
+    typeof data.answerIndex === "number"
+  );
+}
+
+/**
+ * @typedef {{
+ *  readonly type: "answer_accepted";
+ *  readonly data: {
+ *    readonly questionIndex: number;
+ *  };
+ *  readonly id: 0;
+ * }} QuestionAnswerResp
  */
 
 /**

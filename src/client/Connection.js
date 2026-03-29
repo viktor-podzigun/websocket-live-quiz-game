@@ -6,13 +6,13 @@ import { isBroadcastMsg } from "../api.js";
 class Connection {
   /**
    * @param {WebSocket} ws
-   * @param {(resp: BroadcastMsg) => void} onBroadcast
+   * @param {(msg: BroadcastMsg) => void} onBroadcast
    */
   constructor(ws, onBroadcast) {
     /** @readonly @type {WebSocket} */
     this.ws = ws;
 
-    /** @private @readonly @type {(resp: BroadcastMsg) => void} */
+    /** @type {(msg: BroadcastMsg) => void} */
     this.onBroadcast = onBroadcast;
 
     /** @private @type {PromiseWithResolvers<ApiResp>} */
@@ -58,7 +58,7 @@ class Connection {
 
   /**
    * @param {string} address
-   * @param {(resp: BroadcastMsg) => void} onBroadcast
+   * @param {(msg: BroadcastMsg) => void} onBroadcast
    * @returns {Promise<Connection>}
    */
   static async create(address, onBroadcast) {
