@@ -11,8 +11,13 @@
  * }} Player
  */
 
+/**
+ * @typedef {"Waiting" | "Started" | "Finished"} State
+ */
+
 class Game {
   /**
+   * @private
    * @param {string} gameId
    * @param {string} code
    * @param {readonly Question[]} questions
@@ -24,11 +29,14 @@ class Game {
     /** @readonly @type {string} */
     this.code = code;
 
-    /** @private @readonly @type {readonly Question[]} */
+    /** @readonly @type {readonly Question[]} */
     this.questions = questions;
 
     /** @private @type {Player[]} */
     this.players = [];
+
+    /** @private @type {State} */
+    this.state = "Waiting";
   }
 
   /**
@@ -48,9 +56,29 @@ class Game {
   }
 
   /**
-   * @type {Game[]}
+   * @returns {boolean}
+   */
+  start() {
+    if (this.state === "Waiting") {
+      this.state = "Started";
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * @private @type {Game[]}
    */
   static games = [];
+
+  /**
+   * @param {string} gameId
+   * @returns {Game | undefined}
+   */
+  static findByGameId(gameId) {
+    return Game.games.find((_) => _.gameId === gameId);
+  }
 
   /**
    * @param {string} code

@@ -18,7 +18,7 @@ export function create(port) {
     // console.log(`New connection`);
     ws.on("error", console.error);
 
-    new WSClient(wss, ws);
+    WSClient.create(ws);
   });
 
   return wss;

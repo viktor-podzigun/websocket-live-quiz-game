@@ -2,6 +2,7 @@
  * @typedef {LoginReq
  *  | CreateGameReq
  *  | JoinGameReq
+ *  | StartGameReq
  * } ApiReq
  */
 
@@ -9,6 +10,7 @@
  * @typedef {LoginResp
  *  | CreateGameResp
  *  | JoinGameResp
+ *  | StartGameResp
  * } ApiResp
  */
 
@@ -125,15 +127,44 @@ export function isJoinGameData(data) {
  */
 
 /**
+ * @typedef {{
+ *  readonly type: "start_game";
+ *  readonly data: {
+ *    readonly gameId: string;
+ *  };
+ *  readonly id: 0;
+ * }} StartGameReq
+ */
+
+/** @type {(data: any) => boolean} */
+export function isStartGameData(data) {
+  return !!data && typeof data.gameId === "string";
+}
+
+/**
+ * @typedef {{
+ *  readonly type: "game_started";
+ *  readonly data: {
+ *    readonly gameId: string;
+ *  };
+ *  readonly id: 0;
+ * }} StartGameResp
+ */
+
+/**
  * @typedef {PlayerJoinedMsg
  *  | UpdatePlayersMsg
+ *  | QuestionMsg
  * } BroadcastMsg
  */
 
 /** @type {(resp: any) => boolean} */
 export function isBroadcastMsg(resp) {
   return (
-    !!resp && (resp.type === "player_joined" || resp.type === "update_players")
+    !!resp &&
+    (resp.type === "player_joined" ||
+      resp.type === "update_players" ||
+      resp.type === "question")
   );
 }
 
@@ -158,4 +189,18 @@ export function isBroadcastMsg(resp) {
  *  }[];
  *  readonly id: 0;
  * }} UpdatePlayersMsg
+ */
+
+/**
+ * @typedef {{
+ *  readonly type: "question";
+ *  readonly data: {
+ *    readonly questionNumber: number;
+ *    readonly totalQuestions: number;
+ *    readonly text: string;
+ *    readonly options: [string, string, string, string];
+ *    readonly timeLimitSec: number;
+ *  };
+ *  readonly id: 0;
+ * }} QuestionMsg
  */
