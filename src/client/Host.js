@@ -4,6 +4,8 @@
  * @import {
  *  CreateGameReq,
  *  CreateGameResp,
+ *  StartGameReq,
+ *  StartGameResp,
  * } from "../api.js"
  */
 
@@ -32,6 +34,11 @@ class Host {
     this.rl.prompt("Enter game questions (json array)", (_) => this.handler(_));
   }
 
+  requestGameId() {
+    this.state = "StartGame";
+    this.rl.prompt("Enter gameId to start game", (_) => this.handler(_));
+  }
+
   /** @private @type {(answer: string) => void} */
   handler(answer) {
     switch (this.state) {
@@ -41,13 +48,27 @@ class Host {
             this.rl.output(
               `Game created, gameId: ${resp.data.gameId}, room code: ${resp.data.code}`,
             );
-            this.rl.close(); //TODO
+            this.requestGameId();
           })
           .catch((error) => {
             this.rl.output(
               `CreateGame error: ${error.stack ? `${error}` : error}`,
             );
             this.requestGameQuestions();
+          });
+        break;
+
+      case "StartGame":
+        this.doStartGame(answer)
+          .then((resp) => {
+            this.rl.output(`Game started, gameId: ${resp.data.gameId}`);
+            this.rl.close(); //TODO
+          })
+          .catch((error) => {
+            this.rl.output(
+              `StartGame error: ${error.stack ? `${error}` : error}`,
+            );
+            this.requestGameId();
           });
         break;
 
@@ -70,6 +91,21 @@ class Host {
     };
 
     this.rl.output("Creating game...");
+    return await this.conn.send(msg);
+  }
+
+  /** @type {(gameId: string) => Promise<StartGameResp>} */
+  async doStartGame(gameId) {
+    /** @type {StartGameReq} */
+    const msg = {
+      type: "start_game",
+      data: {
+        gameId,
+      },
+      id: 0,
+    };
+
+    this.rl.output("Starting game...");
     return await this.conn.send(msg);
   }
 }
