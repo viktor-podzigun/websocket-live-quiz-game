@@ -1,5 +1,5 @@
 /**
- * @import { WebSocket } from "ws"
+ * @import { WebSocketServer, WebSocket } from "ws"
  * @import {
  *  ApiReq,
  *  ApiResp,
@@ -9,6 +9,9 @@
  *  CreateGameResp,
  *  JoinGameReq,
  *  JoinGameResp,
+ *  PlayerJoinedMsg,
+ *  UpdatePlayersMsg,
+ *  BroadcastMsg,
  * } from "../api.js"
  */
 import { isLoginData, isCreateGameData, isJoinGameData } from "../api.js";
@@ -17,9 +20,13 @@ import { isValidCredentials } from "./users.js";
 
 class WSClient {
   /**
+   * @param {WebSocketServer} wss
    * @param {WebSocket} ws
    */
-  constructor(ws) {
+  constructor(wss, ws) {
+    /** @private @readonly @type {WebSocketServer} */
+    this.wss = wss;
+
     /** @readonly @type {WebSocket} */
     this.ws = ws;
 
@@ -38,6 +45,17 @@ class WSClient {
    */
   sendResp(resp) {
     this.ws.send(JSON.stringify(resp));
+  }
+
+  /**
+   * @private
+   * @param {BroadcastMsg} msg
+   * @returns {void}
+   */
+  broadcastMsg(msg) {
+    this.wss.clients.forEach((ws) => {
+      ws.send(JSON.stringify(msg));
+    });
   }
 
   /**
@@ -164,8 +182,9 @@ class WSClient {
 
     game.joinPlayer(this.ws, this.userName);
     console.log(
-      `Game joined, gameId: ${game.gameId}, user name: ${this.userName}`,
+      `Player joined, gameId: ${game.gameId}, user name: ${this.userName}`,
     );
+    this.broadcastPlayerJoined(game);
 
     /** @type {JoinGameResp} */
     const msg = {
@@ -176,6 +195,39 @@ class WSClient {
       id: 0,
     };
     this.sendResp(msg);
+  }
+
+  /**
+   * @private
+   * @param {Game} game
+   * @returns {void}
+   */
+  broadcastPlayerJoined(game) {
+    const players = game.getPlayers();
+    const p = players[players.length - 1];
+
+    /** @type {PlayerJoinedMsg} */
+    const playerJoinedMsg = {
+      type: "player_joined",
+      data: {
+        playerName: p.name,
+        playerCount: players.length,
+      },
+      id: 0,
+    };
+    this.broadcastMsg(playerJoinedMsg);
+
+    /** @type {UpdatePlayersMsg} */
+    const updatePlayersMsg = {
+      type: "update_players",
+      data: players.map((_, index) => ({
+        name: _.name,
+        index,
+        score: _.score,
+      })),
+      id: 0,
+    };
+    this.broadcastMsg(updatePlayersMsg);
   }
 }
 

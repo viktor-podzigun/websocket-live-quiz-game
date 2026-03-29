@@ -32,6 +32,13 @@ class Game {
   }
 
   /**
+   * @returns {readonly Player[]}
+   */
+  getPlayers() {
+    return this.players;
+  }
+
+  /**
    * @param {WebSocket} ws
    * @param {string} name
    * @returns {number} player count

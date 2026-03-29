@@ -123,3 +123,39 @@ export function isJoinGameData(data) {
  *  readonly id: 0;
  * }} JoinGameResp
  */
+
+/**
+ * @typedef {PlayerJoinedMsg
+ *  | UpdatePlayersMsg
+ * } BroadcastMsg
+ */
+
+/** @type {(resp: any) => boolean} */
+export function isBroadcastMsg(resp) {
+  return (
+    !!resp && (resp.type === "player_joined" || resp.type === "update_players")
+  );
+}
+
+/**
+ * @typedef {{
+ *  readonly type: "player_joined";
+ *  readonly data: {
+ *    readonly playerName: string;
+ *    readonly playerCount: number;
+ *  };
+ *  readonly id: 0;
+ * }} PlayerJoinedMsg
+ */
+
+/**
+ * @typedef {{
+ *  readonly type: "update_players";
+ *  readonly data: {
+ *    readonly name: string;
+ *    readonly index: number | string;
+ *    readonly score: number;
+ *  }[];
+ *  readonly id: 0;
+ * }} UpdatePlayersMsg
+ */

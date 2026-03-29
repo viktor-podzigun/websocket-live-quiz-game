@@ -1,8 +1,16 @@
 /**
- * @import { LoginResp, Question, CreateGameResp, JoinGameResp } from "../src/api.js"
+ * @import {
+ *  LoginResp,
+ *  Question,
+ *  CreateGameResp,
+ *  JoinGameResp,
+ *  PlayerJoinedMsg,
+ *  UpdatePlayersMsg
+ * } from "../src/api.js"
  */
 import { after, before, describe, it } from "node:test";
 import { deepEqual } from "node:assert/strict";
+import mockFunction from "mock-fn";
 import Connection from "../src/client/Connection.js";
 import { create } from "../src/server.js";
 
@@ -33,10 +41,20 @@ describe("server.test.js", async () => {
   /** @type {Promise<Connection>} */
   let playerP = new Promise(() => {});
 
+  let hostBroadcastArgs = /** @type {any[]} */ ([]);
+  const hostBroadcast = mockFunction((...args) =>
+    hostBroadcastArgs.push(...args),
+  );
+
+  let playerBroadcastArgs = /** @type {any[]} */ ([]);
+  const playerBroadcast = mockFunction((...args) =>
+    playerBroadcastArgs.push(...args),
+  );
+
   before(async () => {
     await wssReadyP.promise;
-    hostP = Connection.create(`ws://localhost:${port}`);
-    playerP = Connection.create(`ws://localhost:${port}`);
+    hostP = Connection.create(`ws://localhost:${port}`, hostBroadcast);
+    playerP = Connection.create(`ws://localhost:${port}`, playerBroadcast);
   });
 
   after(async () => {
@@ -308,5 +326,31 @@ describe("server.test.js", async () => {
       id: 0,
     };
     deepEqual(result, resp);
+
+    /** @type {PlayerJoinedMsg} */
+    const playerJoinedMsg = {
+      type: "player_joined",
+      data: {
+        playerName: "user2",
+        playerCount: 1,
+      },
+      id: 0,
+    };
+    /** @type {UpdatePlayersMsg} */
+    const updatePlayersMsg = {
+      type: "update_players",
+      data: [
+        {
+          name: "user2",
+          index: 0,
+          score: 0,
+        },
+      ],
+      id: 0,
+    };
+    deepEqual(hostBroadcast.times, 2);
+    deepEqual(hostBroadcastArgs, [playerJoinedMsg, updatePlayersMsg]);
+    deepEqual(playerBroadcast.times, 2);
+    deepEqual(playerBroadcastArgs, [playerJoinedMsg, updatePlayersMsg]);
   });
 });

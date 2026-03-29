@@ -67,7 +67,7 @@ export function start(rl) {
   function handler(answer) {
     switch (state) {
       case "Connect":
-        Connection.create(answer)
+        Connection.create(answer, (_) => rl.output(JSON.stringify(_)))
           .then((conn) => {
             connP.resolve(conn);
             conn.ws.addEventListener("close", (event) => {

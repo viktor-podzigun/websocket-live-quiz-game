@@ -1,16 +1,21 @@
 /**
- * @import { ApiReq, ApiResp } from "../api.js"
+ * @import { ApiReq, ApiResp, BroadcastMsg } from "../api.js"
  */
+import { isBroadcastMsg } from "../api.js";
 
 class Connection {
   /**
    * @param {WebSocket} ws
+   * @param {(resp: BroadcastMsg) => void} onBroadcast
    */
-  constructor(ws) {
+  constructor(ws, onBroadcast) {
     /** @readonly @type {WebSocket} */
     this.ws = ws;
 
-    /** @private @type {PromiseWithResolvers<string>} */
+    /** @private @readonly @type {(resp: BroadcastMsg) => void} */
+    this.onBroadcast = onBroadcast;
+
+    /** @private @type {PromiseWithResolvers<ApiResp>} */
     this.respP = Promise.withResolvers();
 
     ws.addEventListener("message", (event) => {
@@ -20,10 +25,21 @@ class Connection {
 
   /**
    * @private
-   * @param {string} serverResp
+   * @param {string} rawResp
    */
-  serverHandler(serverResp) {
-    this.respP.resolve(serverResp);
+  serverHandler(rawResp) {
+    if (!rawResp.trim().startsWith("{")) {
+      this.respP.reject(rawResp);
+      return;
+    }
+
+    const resp = JSON.parse(rawResp);
+    if (isBroadcastMsg(resp)) {
+      this.onBroadcast(resp);
+      return;
+    }
+
+    this.respP.resolve(resp);
   }
 
   /**
@@ -36,26 +52,22 @@ class Connection {
     this.respP = Promise.withResolvers();
     this.ws.send(JSON.stringify(msg));
 
-    return this.respP.promise.then((resp) => {
-      if (!resp.trim().startsWith("{")) {
-        throw resp;
-      }
-
-      return JSON.parse(resp);
-    });
+    // @ts-ignore
+    return this.respP.promise;
   }
 
   /**
    * @param {string} address
+   * @param {(resp: BroadcastMsg) => void} onBroadcast
    * @returns {Promise<Connection>}
    */
-  static async create(address) {
+  static async create(address, onBroadcast) {
     /** @type {PromiseWithResolvers<Connection>} */
     const p = Promise.withResolvers();
 
     const ws = new WebSocket(address);
     ws.addEventListener("open", () => {
-      p.resolve(new Connection(ws));
+      p.resolve(new Connection(ws, onBroadcast));
     });
 
     ws.addEventListener("error", (error) => {
