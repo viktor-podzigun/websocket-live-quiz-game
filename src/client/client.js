@@ -1,5 +1,5 @@
 /**
- * @import ReadLine from "./client/ReadLine.js"
+ * @import ReadLine from "./ReadLine.js"
  * @import {
  *  LoginReq,
  *  LoginResp,
@@ -7,9 +7,9 @@
  *  CreateGameResp,
  *  JoinGameReq,
  *  JoinGameResp
- * } from "./api.js"
+ * } from "../api.js"
  */
-import Connection from "./client/Connection.js";
+import Connection from "./Connection.js";
 
 // Possible states:
 //

@@ -1,4 +1,4 @@
-import { create } from "./server.js";
+import { create } from "./server/server.js";
 
 const wss = create(8080);
 

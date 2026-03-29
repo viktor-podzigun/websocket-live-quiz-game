@@ -14,7 +14,7 @@ import { after, before, describe, it } from "node:test";
 import { deepEqual } from "node:assert/strict";
 import mockFunction from "mock-fn";
 import Connection from "../src/client/Connection.js";
-import { create } from "../src/server.js";
+import { create as createServer } from "../src/server/server.js";
 
 const port = 12345;
 
@@ -38,7 +38,7 @@ let gameId = "";
 let gameCode = "";
 
 describe("server.test.js", async () => {
-  const wss = create(port);
+  const wss = createServer(port);
   const wssReadyP = Promise.withResolvers();
   wss.once("listening", () => {
     wssReadyP.resolve(undefined);

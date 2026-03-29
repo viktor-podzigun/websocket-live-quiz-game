@@ -1,5 +1,5 @@
 import { WebSocketServer } from "ws";
-import WSClient from "./server/WSClient.js";
+import WSClient from "./WSClient.js";
 
 /**
  * @param {number} port

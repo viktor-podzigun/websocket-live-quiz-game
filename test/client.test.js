@@ -5,8 +5,8 @@
 import { after, before, describe, it } from "node:test";
 import { deepEqual } from "assert/strict";
 import ReadLine from "../src/client/ReadLine.js";
-import { create } from "../src/server.js";
-import { start as startClient } from "../src/client.js";
+import { create as createServer } from "../src/server/server.js";
+import { start as startClient } from "../src/client/client.js";
 
 const port = 12346;
 
@@ -34,7 +34,7 @@ const gameCreatedP = Promise.withResolvers();
 const gameJoinedP = Promise.withResolvers();
 
 describe("client.test.js", async () => {
-  const wss = create(port);
+  const wss = createServer(port);
   const readyP = Promise.withResolvers();
   wss.once("listening", () => {
     readyP.resolve(undefined);
